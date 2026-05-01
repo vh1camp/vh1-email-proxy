@@ -1,0 +1,8 @@
+{
+  "name": "vh1-email-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "^6.9.14"
+  }
+}
