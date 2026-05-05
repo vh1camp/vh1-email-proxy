@@ -258,7 +258,15 @@ async function insertCamper(camper) {
     return { status: 'invalid', reason: 'invalid or missing email' };
   }
 
-  const existsUrl = `${process.env.SUPABASE_URL}/rest/v1/campers?email=eq.${encodeURIComponent(camper.email)}&select=id`;
+  // Normalize email to lowercase before BOTH dup check and insert. The
+  // original Ben/Jason duplicates happened because JotForm sometimes
+  // returns mixed-case ('BendObmeier8@...') while existing rows stored
+  // the lowercase form, and the previous case-sensitive eq match treated
+  // them as different campers.
+  camper.email = camper.email.trim().toLowerCase();
+
+  // Case-insensitive match via PostgREST's ilike.
+  const existsUrl = `${process.env.SUPABASE_URL}/rest/v1/campers?email=ilike.${encodeURIComponent(camper.email)}&select=id`;
   let existsRes;
   try {
     existsRes = await fetch(existsUrl, { headers: supabaseHeaders() });
